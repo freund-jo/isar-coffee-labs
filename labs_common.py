@@ -6,7 +6,8 @@ Every notebook starts with:
     lab = connect()
 
 connect() reads your API key from the .env file, makes one tiny test call and shows a
-green box if everything works.
+green box if everything works. It works with an Anthropic API key, or with a key from a
+company AI gateway (then .env also holds the gateway address in ANTHROPIC_BASE_URL).
 """
 
 import os
@@ -63,10 +64,35 @@ def _why(error):
         return ["Your API key was rejected.", "Fix: " + SETUP_HINT + "  – it asks for a new key."]
     if "credit" in text.lower() or "billing" in text.lower():
         return ["Your account has no credit.", "Fix: add credit at console.anthropic.com → Billing."]
+    if "doesn't offer the model" in text:
+        return [str(error), "Ask your gateway team which Claude models your key can use."]
     if "connect" in text.lower():
+        if os.environ.get("ANTHROPIC_BASE_URL"):
+            return ["No connection to the gateway. Is the address in .env right? Do you need the company network or VPN?",
+                    "To enter key and address again: " + SETUP_HINT]
         return ["No connection to the Anthropic API. Are you online? Behind a company proxy?",
                 "Try: python3 setup_labs.py --check-tls"]
     return [text[:300]]
+
+
+def _new_client(timeout):
+    import anthropic
+    base_url = os.environ.get("ANTHROPIC_BASE_URL", "").strip() or None
+    return anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"].strip(), base_url=base_url, timeout=timeout)
+
+
+def _gateway_prefix(client):
+    """A gateway may name the models differently, e.g. 'bedrock.anthropic.claude-haiku-5-5'."""
+    if os.environ.get("LABS_MODEL_PREFIX"):
+        return os.environ["LABS_MODEL_PREFIX"].strip()
+    ids = [m.id for m in client.models.list(limit=1000)]
+    for prefix in ("", "bedrock.anthropic.", "anthropic."):
+        if prefix + MODELS["haiku"] in ids:
+            return prefix
+    match = next((i for i in ids if i.endswith(MODELS["haiku"])), None)
+    if match is None:
+        raise RuntimeError(f"The gateway doesn't offer the model {MODELS['haiku']}.")
+    return match[: -len(MODELS["haiku"])]
 
 
 @dataclass
@@ -76,11 +102,11 @@ class Lab:
     HAIKU: str
     SONNET: str
     OPUS: str
+    via_gateway: bool = False
 
     def make_client(self, timeout=600.0):
         """A client with a longer timeout, for long-running cells."""
-        import anthropic
-        return anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=timeout)
+        return _new_client(timeout)
 
     def cost(self, model, usage):
         """Cost of one API call in US$, including cache writes and reads."""
@@ -112,14 +138,18 @@ def connect():
         _show(False, "No API key found", [SETUP_HINT, "Never paste a key into a notebook cell."])
         raise SystemExit("API key needed – see the message above.")
 
-    client = anthropic.Anthropic(api_key=key, timeout=120.0)
-    lab = Lab(client=client, HAIKU=MODELS["haiku"], SONNET=MODELS["sonnet"], OPUS=MODELS["opus"])
+    gateway = bool(os.environ.get("ANTHROPIC_BASE_URL", "").strip())
     try:
+        client = _new_client(120.0)
+        prefix = _gateway_prefix(client) if gateway else ""
+        lab = Lab(client=client, HAIKU=prefix + MODELS["haiku"], SONNET=prefix + MODELS["sonnet"],
+                  OPUS=prefix + MODELS["opus"], via_gateway=gateway)
         client.messages.create(model=lab.HAIKU, max_tokens=5, messages=[{"role": "user", "content": "Say OK."}])
     except Exception as e:
         _show(False, "Connection test failed", _why(e))
         raise SystemExit("Connection failed – see the message above.")
-    _show(True, "Connected", ["Your API key works. You're ready to go."])
+    where = "your company's AI gateway" if gateway else "the Anthropic API"
+    _show(True, "Connected", [f"Your key works with {where}. You're ready to go."])
     return lab
 
 

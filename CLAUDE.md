@@ -18,9 +18,14 @@ When they ask for help setting up:
      local folder first (e.g. `C:\dev\` or `~/projects/`).
    - Is Python 3.10+ installed? Run `python3 --version` (Windows: `py --version`). If not,
      send them to python.org. On Windows, the installer option "Add python.exe to PATH" helps.
-2. Do they have an API key? If not, explain briefly: sign up at console.anthropic.com, add a
-   few dollars of credit under Billing, then create a key under API Keys. A Claude.ai
-   subscription is not an API key.
+2. Do they have an API key? Two kinds work:
+   - An Anthropic key (starts with `sk-ant-`): sign up at console.anthropic.com, add a few
+     dollars of credit under Billing, then create a key under API Keys. A Claude.ai
+     subscription is not an API key.
+   - A key from a company AI gateway (starts with `sk-` but not `sk-ant-`). The setup then also
+     asks for the gateway address, which they get from the team that gave them the key. It
+     often only works on the company network or VPN.
+     Never write the gateway address or key into any file in the repo other than `.env`.
 3. Open a new terminal window that runs the setup (replace `<repo>` with the repo's absolute path):
    - macOS:
      `osascript -e 'tell application "Terminal" to activate' -e 'tell application "Terminal" to do script "cd " & quoted form of "<repo>" & " && python3 setup_labs.py"'`
@@ -46,6 +51,7 @@ Common problems:
 | Certificate / SSL error (company network) | `python3 setup_labs.py --check-tls` (Windows: `py ...`). It asks nothing, so you may run it yourself. |
 | "Your API key was rejected" | Run the setup again in a terminal; it asks for a new key. |
 | "Your account has no credit" | Add credit at console.anthropic.com → Billing. |
+| "No connection to the gateway" | Check the address in `.env` (`ANTHROPIC_BASE_URL`, without `/v1`) and whether they're on the company network or VPN. Running the setup again lets them re-enter key and address. |
 | `python` not found on Windows | Use `py`. |
 | Package install fails | Check internet or proxy, then run the setup again. |
 

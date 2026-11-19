@@ -5,8 +5,9 @@ Open a terminal in this folder and run:
     python3 setup_labs.py      (Mac)
     py setup_labs.py           (Windows)
 
-It installs everything into a local .venv folder, asks for your Anthropic API key, saves it in
-.env and checks that it works. Running it again is safe.
+It installs everything into a local .venv folder, asks for your API key (an Anthropic key, or a
+key from a company AI gateway plus its address), saves it in .env and checks that it works.
+Running it again is safe.
 
     --check-tls   only fix certificate problems on company networks (asks nothing)
 """
@@ -40,7 +41,7 @@ def read_env():
 
 
 def write_env(values):
-    lines = ["# Your Anthropic API key. Keep this file private – never share or commit it."]
+    lines = ["# Your API key. Keep this file private – never share or commit it."]
     lines += [f'{k}="{v}"' for k, v in values.items() if v]
     ENV_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -53,6 +54,11 @@ def test_key():
              if l.strip() and not l.startswith(("Traceback", "  File", "SystemExit", "    "))
              and "see the message above" not in l]
     return result.returncode == 0, lines
+
+
+def reason(lines):
+    """The one line that says what went wrong, without the fix (we are already in the setup)."""
+    return lines[1] if len(lines) > 1 else " ".join(lines)
 
 
 def fix_certificates(values):
@@ -118,20 +124,24 @@ def main():
             say("✓ API key found and working\n")
             say("All set. Open 01_eval/Eval.ipynb in VS Code and pick the kernel “Isar Coffee Labs (.venv)”.")
             return
-        say("! The saved key doesn't work: " + " ".join(lines[-2:]))
+        say("! The saved key doesn't work: " + reason(lines))
 
     if not sys.stdin.isatty():
         say("✗ The API key has to be typed in a terminal. Run this script yourself: python3 setup_labs.py")
         sys.exit(1)
 
     while True:
-        say("\nPaste your Anthropic API key and press Enter.")
-        say("(You won't see it while you type. It starts with sk-ant-. Get one at console.anthropic.com)")
+        say("\nPaste your API key and press Enter. (You won't see it while you type.)")
         key = getpass.getpass("API key: ").strip()
-        if not key.startswith("sk-ant-"):
-            say("✗ That doesn't look like an Anthropic API key. Try again.")
+        if not key.startswith("sk-"):
+            say("✗ That doesn't look like an API key – keys start with sk-. Try again.")
             continue
-        values["ANTHROPIC_API_KEY"] = key
+        values = {"ANTHROPIC_API_KEY": key, "LABS_TLS": values.get("LABS_TLS", "")}
+        if not key.startswith("sk-ant-"):
+            say("\nThis is not an Anthropic key, so it's probably from a company AI gateway.")
+            say("Enter the gateway address you got with the key, e.g. https://ai-gateway.example.com")
+            url = input("Gateway address: ").strip().rstrip("/")
+            values["ANTHROPIC_BASE_URL"] = url.removesuffix("/v1")
         write_env(values)
         ok, lines = test_key()
         if not ok and any("certificate" in l.lower() for l in lines):
@@ -139,7 +149,7 @@ def main():
             ok, lines = fix_certificates(values)
         if ok:
             break
-        say("✗ " + " ".join(lines[-2:]))
+        say("✗ " + reason(lines))
         if input("Try another key? [Y/n] ").strip().lower() == "n":
             sys.exit(1)
 

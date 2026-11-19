@@ -17,6 +17,8 @@ startup from Munich.
 - Under **API Keys**, create a key and keep the tab open.
 
 A Claude.ai subscription (Pro, Max) is not an API key.
+If your company gave you a key for its AI gateway instead, use that. The setup then also asks
+for the gateway address.
 
 **2. Get the code**
 
