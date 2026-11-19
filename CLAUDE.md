@@ -172,9 +172,11 @@ sets `RUN_V0_LIVE = True`.
 The story: the care team sends standard replies per decision, so the AI only has to deliver the
 decision record. That's why dropping v0's letter is not a lost feature.
 
-**Part 3 · Smell test.** What they should spot: Opus for everything; four calls per claim; the
-handbook never cached (date and name in front of it); a letter nobody needs plus a fragile regex;
-claims one after another.
+**Part 3 · Smell test.** The findings are listed in lever order, one per lever: four calls per claim
+(Lever 1); a letter nobody needs plus a fragile regex (2); the handbook never cached because date and
+name sit in front of it (3); Opus for everything (4); nothing visible until the end (5); claims one
+after another (6); everything at full price (7). v0 really writes a whole letter – the decision is
+only in the three lines at its end. In the code, v0's four calls are written out one by one.
 
 **Lever 2 · Schema.** They add `"reason": {"type": "string", "enum": REASONS}` and put `"reason"`
 in `required`. Hint ladder: (1) look at how `decision` is defined; (2) the list is `REASONS`;
@@ -214,8 +216,14 @@ counted only at ≥ 90 % accuracy. A fully optimised run reaches 100 % accuracy,
 cheaper and 10–15× faster. If accuracy drops below 90 %, look at which claims fail – usually R-11, R-12 or R-14 when Haiku does
 everything (`"model": "haiku"`), or a schema without `reason`. `effort: "low"` saves tokens and usually keeps
 accuracy. Settings identical to v0 show the recorded run instead of calling the API.
-The holdout (H-01 refund 23.90, H-02 misuse, H-03 misuse – pepper in the grinder) is for the end
+The holdout (H-01 reject – too late, H-02 misuse, H-03 misuse – pepper in the grinder) is for the end
 only – no tuning against it.
+
+**Charts.** Every scorecard run on the sample claims is kept in `RUN_HISTORY`; the cell after the
+scorecard plots all runs against v0 (free, no API calls). The ⭐ "lever by lever" cell switches the
+levers on one after another and plots the result – it only runs with `RUN_LADDER = True` (≈ $0.80,
+≈ 6 min, because the first two steps still use Opus). The axis is logarithmic, because the levers
+multiply; hatched bars are runs below 90 % accuracy.
 
 ## Maintaining the labs
 

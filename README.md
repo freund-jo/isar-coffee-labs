@@ -8,6 +8,8 @@ startup from Munich.
 | **Lab 1 · Eval** – `01_eval/Eval.ipynb` | Test an AI assistant, fix it, and prove it got better | ~60 min |
 | **Lab 2 · Inference** – `02_inference/Inference.ipynb` | Make an AI workflow fast and cheap without losing accuracy | ~60 min |
 
+Do Lab 1 first: Lab 2 uses its idea of an eval to check that every speed-up keeps the answers right.
+
 ## Setup (once, about 5 minutes)
 
 **1. Get an Anthropic API key**
