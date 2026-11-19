@@ -63,3 +63,4 @@ hints, not answers, unless I ask for the solution."*
 | Red box: **key rejected** | Run step 3 again. It asks for a new key |
 | Kernel not in the list | Restart VS Code once |
 | `python3` not found on Windows | Use `py` |
+| Accidentally broke the notebook | Copy your ✏️ cells somewhere, then get a fresh `Eval.ipynb` from the repo (`git checkout 01_eval/Eval.ipynb`, or download it again) |
