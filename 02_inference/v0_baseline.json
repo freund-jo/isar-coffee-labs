@@ -1,6 +1,6 @@
 {
  "note": "Recorded v0 run (Claude Opus 5.5), costs at Anthropic list prices.",
- "wall": 446.5699920829793,
+ "wall": 527.6150464999955,
  "rows": [
   {
    "id": "R-01",
@@ -14,10 +14,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 46.816498333006166,
+   "seconds": 32.87312216698774,
    "calls": 4,
-   "cost": 0.130632,
-   "output_tokens": 2158,
+   "cost": 0.129892,
+   "output_tokens": 2008,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -33,10 +33,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 52.90632379197632,
+   "seconds": 32.08744933299022,
    "calls": 4,
-   "cost": 0.137828,
-   "output_tokens": 2424,
+   "cost": 0.140356,
+   "output_tokens": 2450,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -52,10 +52,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 42.302746874978766,
+   "seconds": 43.99492579101934,
    "calls": 4,
-   "cost": 0.14046,
-   "output_tokens": 2600,
+   "cost": 0.14614,
+   "output_tokens": 2806,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -71,10 +71,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 45.89508712501265,
+   "seconds": 30.54707891700673,
    "calls": 4,
-   "cost": 0.139276,
-   "output_tokens": 2489,
+   "cost": 0.136836,
+   "output_tokens": 2298,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -90,10 +90,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 62.25129220899544,
+   "seconds": 45.05190304201096,
    "calls": 4,
-   "cost": 0.162828,
-   "output_tokens": 3707,
+   "cost": 0.16546,
+   "output_tokens": 3744,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -109,10 +109,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 36.251990458986256,
+   "seconds": 41.44811883298098,
    "calls": 4,
-   "cost": 0.136764,
-   "output_tokens": 2416,
+   "cost": 0.150404,
+   "output_tokens": 2932,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -128,10 +128,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 46.42393858399009,
+   "seconds": 27.76023187499959,
    "calls": 4,
-   "cost": 0.138276,
-   "output_tokens": 2490,
+   "cost": 0.137884,
+   "output_tokens": 2364,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -147,10 +147,10 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 61.2493881250266,
+   "seconds": 33.167067000002135,
    "calls": 4,
-   "cost": 0.13850800000000002,
-   "output_tokens": 2456,
+   "cost": 0.14202,
+   "output_tokens": 2547,
    "cache_read": 0,
    "cache_write": 0
   },
@@ -166,10 +166,105 @@
     "refund_eur": true,
     "reason": true
    },
-   "seconds": 52.47229700000025,
+   "seconds": 44.338885582983494,
    "calls": 4,
-   "cost": 0.16333999999999999,
-   "output_tokens": 3655,
+   "cost": 0.16278399999999998,
+   "output_tokens": 3496,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-10",
+   "record": {
+    "decision": "refund",
+    "refund_eur": 49.0,
+    "reason": "within_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 34.482073666004,
+   "calls": 4,
+   "cost": 0.140056,
+   "output_tokens": 2612,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-11",
+   "record": {
+    "decision": "refund",
+    "refund_eur": 23.3,
+    "reason": "within_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 33.215973167010816,
+   "calls": 4,
+   "cost": 0.14261200000000002,
+   "output_tokens": 2730,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-12",
+   "record": {
+    "decision": "refund",
+    "refund_eur": 9.9,
+    "reason": "within_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 40.55269949999638,
+   "calls": 4,
+   "cost": 0.143896,
+   "output_tokens": 2634,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-13",
+   "record": {
+    "decision": "refund",
+    "refund_eur": 23.9,
+    "reason": "within_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 34.3021914580022,
+   "calls": 4,
+   "cost": 0.135428,
+   "output_tokens": 2239,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-14",
+   "record": {
+    "decision": "reject",
+    "refund_eur": 0.0,
+    "reason": "misuse"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 53.79260812498978,
+   "calls": 4,
+   "cost": 0.16626,
+   "output_tokens": 3723,
    "cache_read": 0,
    "cache_write": 0
   }

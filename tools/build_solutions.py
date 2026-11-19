@@ -217,7 +217,7 @@ INFERENCE_SWAPS = [
     ),
     (
         """def pick_model(claim):
-    return lab.OPUS""",
+    return lab.SONNET""",
         """def pick_model(claim):
     if claim["channel"] == "form" and claim.get("dropdown") == "changed my mind":
         return lab.HAIKU
@@ -236,7 +236,7 @@ INFERENCE_SWAPS = [
     "cache": True,          # Lever 3: build_request with the cached handbook
     "routing": True,        # Lever 4: pick_model instead of one model for everything
     "model": "opus",        # the model when routing is off: "haiku", "sonnet" or "opus"
-    "effort": "low",        # None, "low", "medium" or "high"
+    "effort": None,         # None, "low", "medium" or "high"
     "workers": 8,           # Lever 6: claims at the same time (0 = one after another)""",
     ),
     ("RUN_HOLDOUT = False\n", "RUN_HOLDOUT = True\n"),

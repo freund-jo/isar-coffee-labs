@@ -81,6 +81,19 @@ def _new_client(timeout):
     return anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"].strip(), base_url=base_url, timeout=timeout)
 
 
+def _switch_off_haiku_thinking(client):
+    """Adds thinking={"type": "disabled"} to every Haiku request that doesn't set thinking itself."""
+    for name in ("create", "stream"):
+        original = getattr(client.messages, name)
+
+        def wrapped(*args, _original=original, **kwargs):
+            if MODELS["haiku"] in str(kwargs.get("model", "")) and "thinking" not in kwargs:
+                kwargs["thinking"] = {"type": "disabled"}
+            return _original(*args, **kwargs)
+
+        setattr(client.messages, name, wrapped)
+
+
 def _gateway_prefix(client):
     """A gateway may name the models differently, e.g. 'bedrock.anthropic.claude-haiku-5-5'."""
     if os.environ.get("LABS_MODEL_PREFIX"):
@@ -104,9 +117,16 @@ class Lab:
     OPUS: str
     via_gateway: bool = False
 
-    def make_client(self, timeout=600.0):
-        """A client with a longer timeout, for long-running cells."""
-        return _new_client(timeout)
+    def make_client(self, timeout=600.0, haiku_thinks=True):
+        """A client with a longer timeout, for long-running cells.
+
+        haiku_thinks=False: every call to Haiku runs with thinking switched off – the fastest and
+        cheapest setting. Sonnet and Opus are not affected.
+        """
+        client = _new_client(timeout)
+        if not haiku_thinks:
+            _switch_off_haiku_thinking(client)
+        return client
 
     def cost(self, model, usage):
         """Cost of one API call in US$, including cache writes and reads."""

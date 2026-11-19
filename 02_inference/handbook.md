@@ -190,7 +190,9 @@ Claims come in two ways:
 
 - **Web form** (online shop orders). It has fields: order number, what was ordered, what is being
   claimed, the delivery date, whether the item was opened or used, a reason from a dropdown and
-  an optional description. Trust the fields.
+  an optional description. Trust the fields. For returns, the form also shows the refund the shop
+  system has worked out, assuming the whole return is accepted. Use it if the whole return is
+  accepted; if only part of it is, work out the amount yourself.
 - **Email.** Customers who bought at the market stand, or who simply prefer email, write to
   care@isar-coffee.example. Read the whole email. Look for: which product, when and where it
   was bought, what happened, and whether there is an order number or a receipt.

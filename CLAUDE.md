@@ -155,6 +155,8 @@ The workflow: each return or warranty claim (web form or email) gets a decision 
 (`decision`, `refund_eur`, `reason`) based on `02_inference/handbook.md`. v0 is correct but
 slow and expensive; the person makes it fast and cheap without dropping below 90 % accuracy.
 The handbook defines the correct answers – if a decision looks wrong to them, look it up there.
+Accuracy counts claims, not fields: a claim is only correct if decision, amount and reason all match
+(like a task in Lab 1).
 
 What the person should take away:
 1. Measure first: TTFT, total time, cost per item. No baseline, no improvement you can prove.
@@ -163,9 +165,9 @@ What the person should take away:
 3. Caching only works if the beginning of the request is identical. Anything that changes per
    item (date, name, the claim) goes after the cached part.
 
-Recorded v0 numbers (`v0_baseline.json`): 100 % accuracy, p50 ≈ 47 s per claim, ≈ $0.14 per
-claim, ≈ 7.5 min for all nine. Running v0 live costs ≈ $1.30 – mention that before anyone sets
-`RUN_V0_LIVE = True`.
+Recorded v0 numbers are in `v0_baseline.json` (14 claims, recorded with Opus): see the report it
+prints in Part 3. Running v0 live costs ≈ $2 and takes ≈ 12 minutes – mention that before anyone
+sets `RUN_V0_LIVE = True`.
 
 The story: the care team sends standard replies per decision, so the AI only has to deliver the
 decision record. That's why dropping v0's letter is not a lost feature.
@@ -185,9 +187,16 @@ the date + `claim_text(claim)` as `claim_part`. The name isn't needed any more. 
 a list of blocks; (3) the block format from the hint. If both requests show cache read 0, something
 before the handbook still changes. Caches last 5 minutes and are per model.
 
-**Lever 4 · Routing.** Web form + dropdown "changed my mind" → Haiku, everything else → Sonnet.
-Expected small: R-01, R-02, R-06, R-07. Why: those are decided by dates and opened/unopened alone;
-emails and damage need judgement (defect vs. misuse).
+**Lever 4 · Routing.** In Lab 2, Haiku runs without thinking (set once in the setup cell via
+`lab.make_client(..., haiku_thinks=False)`) – the fastest and cheapest option. The cell first runs every
+claim on Haiku and on Sonnet, so the person sees which claims Haiku gets wrong; then they write
+`pick_model`. Expected rule: web form + dropdown "changed my mind" → `lab.HAIKU` (R-01, R-02, R-06,
+R-07, R-13), everything else → `lab.SONNET`. Why: for those web forms the shop system has already
+worked out the days since delivery and the refund. Emails and "other" cases have to be worked out:
+R-11 (whole order by email – look up two prices, add shipping), R-12 (two bags, one opened – the system
+amount assumes the whole return and is wrong, the answer is 9.90), R-14 (frother "rinsed whole under
+the tap" – that includes the handle, so it's misuse). In testing Haiku got all simple form claims right
+and those three wrong every time; Sonnet got everything right. The cell needs Lever 2 and 3 to be done.
 
 **Lever 5 · Streaming.** It doesn't make calls finish sooner. The cell streams v0's letter (text
 appears well before it's complete) and the short JSON record (first and last token almost
@@ -202,8 +211,8 @@ Batch API (`lab.via_gateway`); the cost effect is the same.
 **Part 5 · Sprint.** Suggested order: `one_call` → `structured` → `cache` → `routing` → `workers`.
 The scorecard shows two numbers against v0: how many times cheaper and how many times faster,
 counted only at ≥ 90 % accuracy. A fully optimised run reaches 100 % accuracy, roughly 150–180×
-cheaper and 10–15× faster. If accuracy drops below 90 %, look at which claims fail – usually R-05, R-08 or R-09 on a
-model that's too small, or a schema without `reason`. `effort: "low"` saves tokens and usually keeps
+cheaper and 10–15× faster. If accuracy drops below 90 %, look at which claims fail – usually R-11, R-12 or R-14 when Haiku does
+everything (`"model": "haiku"`), or a schema without `reason`. `effort: "low"` saves tokens and usually keeps
 accuracy. Settings identical to v0 show the recorded run instead of calling the API.
 The holdout (H-01 refund 23.90, H-02 misuse, H-03 misuse – pepper in the grinder) is for the end
 only – no tuning against it.
