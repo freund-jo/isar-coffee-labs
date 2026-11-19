@@ -167,6 +167,9 @@ Recorded v0 numbers (`v0_baseline.json`): 100 % accuracy, p50 ≈ 47 s per claim
 claim, ≈ 7.5 min for all nine. Running v0 live costs ≈ $1.30 – mention that before anyone sets
 `RUN_V0_LIVE = True`.
 
+The story: the care team sends standard replies per decision, so the AI only has to deliver the
+decision record. That's why dropping v0's letter is not a lost feature.
+
 **Part 3 · Smell test.** What they should spot: Opus for everything; four calls per claim; the
 handbook never cached (date and name in front of it); a letter nobody needs plus a fragile regex;
 claims one after another.
@@ -186,8 +189,9 @@ before the handbook still changes. Caches last 5 minutes and are per model.
 Expected small: R-01, R-02, R-06, R-07. Why: those are decided by dates and opened/unopened alone;
 emails and damage need judgement (defect vs. misuse).
 
-**Lever 5 · Streaming.** It doesn't make calls finish sooner. With the short JSON record, first and
-last token are close together – that's expected, not a bug.
+**Lever 5 · Streaming.** It doesn't make calls finish sooner. The cell streams v0's letter (text
+appears well before it's complete) and the short JSON record (first and last token almost
+together – expected, not a bug).
 
 **Lever 6 · Parallel.** Typical result: sequential ≈ 45 s, parallel ≈ 12 s. Parallel without warming
 writes the cache for nearly every claim; warming first writes it once.
@@ -196,11 +200,13 @@ writes the cache for nearly every claim; warming first writes it once.
 Batch API (`lab.via_gateway`); the cost effect is the same.
 
 **Part 5 · Sprint.** Suggested order: `one_call` → `structured` → `cache` → `routing` → `workers`.
-A fully optimised run reaches 100 % accuracy at ≈ $0.001 per claim and p50 ≈ 4 s (score in the
-thousands). If accuracy drops below 90 %, look at which claims fail – usually R-05, R-08 or R-09 on a
+The scorecard shows two numbers against v0: how many times cheaper and how many times faster,
+counted only at ≥ 90 % accuracy. A fully optimised run reaches 100 % accuracy, roughly 150–180×
+cheaper and 10–15× faster. If accuracy drops below 90 %, look at which claims fail – usually R-05, R-08 or R-09 on a
 model that's too small, or a schema without `reason`. `effort: "low"` saves tokens and usually keeps
 accuracy. Settings identical to v0 show the recorded run instead of calling the API.
-The holdout (H-01 refund 23.90, H-02 misuse) is for the end only – no tuning against it.
+The holdout (H-01 refund 23.90, H-02 misuse, H-03 misuse – pepper in the grinder) is for the end
+only – no tuning against it.
 
 ## Maintaining the labs
 

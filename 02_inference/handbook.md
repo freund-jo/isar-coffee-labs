@@ -56,6 +56,8 @@ Only one reason per claim. If several apply, use the first rule in sections 2–
 - **Shipping.** Orders under €40 pay €4.90 shipping, orders of €40 or more ship for free.
   We refund the €4.90 only if the **whole order** is returned **and** shipping was actually
   charged. Partial returns never get shipping back.
+- If only part of a return can be accepted – for example two bags come back but one of them is
+  opened – refund only the items that can be returned, and no shipping.
 - A return for "changed my mind", "wrong size" or "gift I don't need" is fine, as long as the
   item is unopened and unused and within 30 days.
 - After 30 days, an unopened item can't be returned: `reject`, reason `outside_return_window`.

@@ -229,14 +229,14 @@ INFERENCE_SWAPS = [
     "cache": False,         # Lever 3: build_request with the cached handbook
     "routing": False,       # Lever 4: pick_model instead of one model for everything
     "model": "opus",        # the model when routing is off: "haiku", "sonnet" or "opus"
-    "effort": None,         # optional: "low", "medium" or "high" – less thinking, fewer tokens
+    "effort": None,         # None, "low", "medium" or "high"
     "workers": 0,           # Lever 6: claims at the same time (0 = one after another)""",
         """    "one_call": True,       # Lever 1: one call instead of four
     "structured": True,     # Lever 2: JSON record instead of a letter
     "cache": True,          # Lever 3: build_request with the cached handbook
     "routing": True,        # Lever 4: pick_model instead of one model for everything
     "model": "opus",        # the model when routing is off: "haiku", "sonnet" or "opus"
-    "effort": "low",        # optional: "low", "medium" or "high" – less thinking, fewer tokens
+    "effort": "low",        # None, "low", "medium" or "high"
     "workers": 8,           # Lever 6: claims at the same time (0 = one after another)""",
     ),
     ("RUN_HOLDOUT = False\n", "RUN_HOLDOUT = True\n"),
