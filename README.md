@@ -22,7 +22,8 @@ for the gateway address.
 
 **2. Get the code**
 
-Clone the repo or download it as a zip and unzip it. Put it in a normal local folder such as
+Clone the repo with `git clone https://github.com/freund-jo/isar-coffee-labs.git`, or download it
+as a zip (green **Code** button on GitHub → **Download ZIP**) and unzip it. Put it in a normal local folder such as
 `C:\dev\` or `~/projects/` – **not in OneDrive, Dropbox or iCloud**, because syncing breaks the setup.
 
 **3. Run the setup**
