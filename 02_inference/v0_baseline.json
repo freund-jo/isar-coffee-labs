@@ -1,0 +1,177 @@
+{
+ "note": "Recorded v0 run (Claude Opus 5.5), costs at Anthropic list prices.",
+ "wall": 446.5699920829793,
+ "rows": [
+  {
+   "id": "R-01",
+   "record": {
+    "decision": "refund",
+    "refund_eur": 14.8,
+    "reason": "within_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 46.816498333006166,
+   "calls": 4,
+   "cost": 0.130632,
+   "output_tokens": 2158,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-02",
+   "record": {
+    "decision": "reject",
+    "refund_eur": 0.0,
+    "reason": "opened_coffee"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 52.90632379197632,
+   "calls": 4,
+   "cost": 0.137828,
+   "output_tokens": 2424,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-03",
+   "record": {
+    "decision": "replacement",
+    "refund_eur": 0.0,
+    "reason": "quality_issue"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 42.302746874978766,
+   "calls": 4,
+   "cost": 0.14046,
+   "output_tokens": 2600,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-04",
+   "record": {
+    "decision": "replacement",
+    "refund_eur": 0.0,
+    "reason": "warranty_defect"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 45.89508712501265,
+   "calls": 4,
+   "cost": 0.139276,
+   "output_tokens": 2489,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-05",
+   "record": {
+    "decision": "reject",
+    "refund_eur": 0.0,
+    "reason": "misuse"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 62.25129220899544,
+   "calls": 4,
+   "cost": 0.162828,
+   "output_tokens": 3707,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-06",
+   "record": {
+    "decision": "reject",
+    "refund_eur": 0.0,
+    "reason": "outside_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 36.251990458986256,
+   "calls": 4,
+   "cost": 0.136764,
+   "output_tokens": 2416,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-07",
+   "record": {
+    "decision": "refund",
+    "refund_eur": 19.9,
+    "reason": "within_return_window"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 46.42393858399009,
+   "calls": 4,
+   "cost": 0.138276,
+   "output_tokens": 2490,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-08",
+   "record": {
+    "decision": "replacement",
+    "refund_eur": 0.0,
+    "reason": "warranty_defect"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 61.2493881250266,
+   "calls": 4,
+   "cost": 0.13850800000000002,
+   "output_tokens": 2456,
+   "cache_read": 0,
+   "cache_write": 0
+  },
+  {
+   "id": "R-09",
+   "record": {
+    "decision": "need_info",
+    "refund_eur": 0.0,
+    "reason": "missing_proof_of_purchase"
+   },
+   "checks": {
+    "decision": true,
+    "refund_eur": true,
+    "reason": true
+   },
+   "seconds": 52.47229700000025,
+   "calls": 4,
+   "cost": 0.16333999999999999,
+   "output_tokens": 3655,
+   "cache_read": 0,
+   "cache_write": 0
+  }
+ ]
+}
