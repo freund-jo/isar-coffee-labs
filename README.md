@@ -1,87 +1,63 @@
 # Isar Coffee Labs
 
-Two hands-on labs about building with Claude, using a small Munich coffee shop as the example.
+Two hands-on labs about building with Claude. The example is Isar Coffee, a small coffee
+startup from Munich.
 
-| Lab | What you learn | Time |
+| Lab | What you do | Time |
 |---|---|---|
-| [Lab 1 · Eval](01_eval/) | Test an AI assistant with an eval, fix it, and prove it got better | ~60–90 min |
-| Lab 2 · Inference | Make a slow, expensive AI workflow fast and cheap without losing accuracy | coming soon |
+| **Lab 1 · Eval** – `01_eval/Eval.ipynb` | Test an AI assistant, fix it, and prove it got better | ~60 min |
+| **Lab 2 · Inference** – coming soon | Make an AI workflow fast and cheap without losing accuracy | ~60 min |
 
----
+## Setup (once, about 5 minutes)
 
-## Before the session
+**1. Get an Anthropic API key**
 
-You need:
+- Sign up at [console.anthropic.com](https://console.anthropic.com).
+- Under **Billing**, add a few dollars of credit. Both labs together cost well under that.
+- Under **API Keys**, create a key and keep the tab open.
 
-1. **An Anthropic API key** from [console.anthropic.com](https://console.anthropic.com).
-   Add a little credit (a few dollars are enough) and set a monthly spend limit under *Billing*.
-   A Claude.ai subscription (Pro, Max) is **not** an API key.
-   If you were given access to a company AI gateway instead, you don't need your own key.
-2. **Python 3.10 or newer**. Check with `python --version` (Windows: `py --version`).
-3. **VS Code** with the *Python* and *Jupyter* extensions.
-4. Optional: **[Claude Code](https://claude.com/claude-code)**, if you want a tutor next to you while you work (see below).
+A Claude.ai subscription (Pro, Max) is not an API key.
 
-## Step 1 · Get the code
+**2. Get the code**
 
-Either clone it:
+Clone the repo or download it as a zip and unzip it. Put it in a normal local folder such as
+`C:\dev\` or `~/projects/` – **not in OneDrive, Dropbox or iCloud**, because syncing breaks the setup.
 
-```bash
-git clone <repo-url> isar-coffee-labs
-```
-
-or download the zip and unzip it.
-
-> **Put the folder somewhere local – not in OneDrive, Dropbox or iCloud.**
-> For example `C:\dev\isar-coffee-labs` (Windows) or `~/projects/isar-coffee-labs` (Mac).
-> Sync folders break the Python environment, and they would upload your key to the cloud.
-> On many company laptops the Desktop and Documents folders are synced to OneDrive too.
-
-## Step 2 · Run the setup (once)
+**3. Run the setup**
 
 Open the folder in VS Code (**File → Open Folder**), then **Terminal → New Terminal** and run:
 
-```bash
-python3 setup_labs.py      # Mac
-py setup_labs.py           # Windows
+```
+python3 setup_labs.py        (Mac)
+py setup_labs.py             (Windows)
 ```
 
-It creates a Python environment, installs everything, asks for your key and tests the connection.
-Paste your key only into this terminal – never into a notebook or a chat.
-When it says **You're all set**, you're done.
+Paste your key when it asks. When it says **All set**, you're done.
 
-## Step 3 · Open a lab
+**4. Open the lab**
 
-Open `01_eval/Eval.ipynb`. At the top right, click **Select Kernel** and pick
-**Isar Coffee Labs (.venv)**. If you don't see it, choose *Select Another Kernel → Jupyter Kernel*.
-
+Open `01_eval/Eval.ipynb`. At the top right, click **Select Kernel** and pick **Isar Coffee Labs (.venv)**.
 Run the first cell. A green **Connected** box means you're ready.
 
-## Optional · Work with a Claude tutor
+You need Python 3.10 or newer and VS Code with the *Python* and *Jupyter* extensions.
 
-If you have Claude Code, open a terminal in the repo folder and run `claude`.
-It picks up the tutor instructions in this repo automatically. It won't hand you the answers –
-it asks what you tried and gives you a nudge. Useful commands:
+## Stuck? Ask Claude
 
-| Command | What it does |
-|---|---|
-| `/hint` | The next hint for the exercise you're on |
-| `/check` | Looks at your cell and tells you what's wrong, not how to fix it |
-| `/explain <term>` | Explains a term, e.g. `/explain grader` |
+If you use [Claude Code](https://claude.com/claude-code), open a terminal in this folder and run `claude`.
 
-If you'd like the full answer, just ask for it.
-Using Claude.ai or Claude Desktop instead? Copy [TUTOR_PROMPT.md](TUTOR_PROMPT.md) into a new project or chat.
+- **Setup:** say "help me set up the labs". It knows the steps and opens the setup for you.
+- **The labs:** it acts as a tutor. It asks what you tried and gives you a hint instead of the
+  answer. If you want the full solution, just ask for it.
+
+Using Claude.ai instead? Upload the notebook and start with: *"Be my tutor for this lab. Give me
+hints, not answers, unless I ask for the solution."*
 
 ## If something goes wrong
 
 | Problem | Fix |
 |---|---|
-| Red box: **Packages missing** | Run the setup again (Step 2), then pick the right kernel |
-| Red box: **certificate** / **SSL** | Company networks often check HTTPS traffic. Run `python3 setup_labs.py --check-tls` (Windows: `py setup_labs.py --check-tls`), then run the cell again |
-| Red box: **key was rejected** | Delete the `.env` file and run the setup again |
-| Kernel not in the list | Restart VS Code once after the setup |
-| `python` not found on Windows | Use `py` instead of `python` |
-
-## Cost
-
-Lab 1 uses Claude Haiku and costs a few cents. Each notebook shows a rough cost on the cells
-that call the API, so you know what to expect before you run something.
+| Red box: **Setup not done yet** | Run step 3, then pick the kernel (step 4) |
+| Red box: **certificate** or **network** | Run `python3 setup_labs.py --check-tls` (Windows: `py setup_labs.py --check-tls`) |
+| Red box: **key rejected** | Run step 3 again. It asks for a new key |
+| Kernel not in the list | Restart VS Code once |
+| `python3` not found on Windows | Use `py` |

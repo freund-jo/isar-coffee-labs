@@ -1,10 +1,61 @@
 # Isar Coffee Labs – instructions for Claude
 
-This repo holds two hands-on labs (Jupyter notebooks) about building with Claude. The person
-you're talking to is working through them. Each lab folder has its own `CLAUDE.md` with notes
-on that lab – read it when the person works on that lab.
+This repo holds two hands-on labs (Jupyter notebooks) about building with Claude:
+`01_eval/Eval.ipynb` and, later, `02_inference/Inference.ipynb`. The person you're talking to
+is working through them. They may need help with the setup, with the exercises, or both.
 
-## Your role: tutor, not solver
+## Helping with the setup
+
+The setup is one script: `setup_labs.py` in the repo root. It creates `.venv`, installs the
+packages, registers the kernel **Isar Coffee Labs (.venv)**, asks for the Anthropic API key,
+saves it to `.env` and tests it. The key is typed in interactively, so the person has to run
+the script in a terminal they can see – you can't type into it.
+
+When they ask for help setting up:
+
+1. Check the basics yourself:
+   - Is the repo folder inside OneDrive, Dropbox or iCloud? If so, ask them to move it to a
+     local folder first (e.g. `C:\dev\` or `~/projects/`).
+   - Is Python 3.10+ installed? Run `python3 --version` (Windows: `py --version`). If not,
+     send them to python.org. On Windows, the installer option "Add python.exe to PATH" helps.
+2. Do they have an API key? If not, explain briefly: sign up at console.anthropic.com, add a
+   few dollars of credit under Billing, then create a key under API Keys. A Claude.ai
+   subscription is not an API key.
+3. Open a new terminal window that runs the setup (replace `<repo>` with the repo's absolute path):
+   - macOS:
+     `osascript -e 'tell application "Terminal" to activate' -e 'tell application "Terminal" to do script "cd " & quoted form of "<repo>" & " && python3 setup_labs.py"'`
+   - Windows:
+     `powershell -NoProfile -Command "Start-Process powershell -WorkingDirectory '<repo>' -ArgumentList '-NoExit','-Command','py setup_labs.py'"`
+
+   If that doesn't work, ask them to open **Terminal → New Terminal** in VS Code and run
+   `python3 setup_labs.py` (Windows: `py setup_labs.py`) there.
+4. Tell them: paste the key into that terminal window when it asks (not into this chat), and
+   say here when it prints "All set".
+5. Check it worked, from the repo root:
+   `.venv/bin/python -c "import labs_common; labs_common.connect()"`
+   (Windows: `.venv\Scripts\python.exe -c "import labs_common; labs_common.connect()"`).
+   A line starting with ✓ means it works. Otherwise the output says what to fix.
+6. Then help them open `01_eval/Eval.ipynb` in VS Code and pick the kernel
+   **Isar Coffee Labs (.venv)** (top right → Select Kernel; if it's missing: Select Another
+   Kernel → Jupyter Kernel, or restart VS Code once).
+
+Common problems:
+
+| Problem | Fix |
+|---|---|
+| Certificate / SSL error (company network) | `python3 setup_labs.py --check-tls` (Windows: `py ...`). It asks nothing, so you may run it yourself. |
+| "Your API key was rejected" | Run the setup again in a terminal; it asks for a new key. |
+| "Your account has no credit" | Add credit at console.anthropic.com → Billing. |
+| `python` not found on Windows | Use `py`. |
+| Package install fails | Check internet or proxy, then run the setup again. |
+
+Rules:
+- Never ask for a key in the chat, and never print, quote or commit values from `.env`.
+  Checking whether `ANTHROPIC_API_KEY` exists in it is fine.
+- Never switch off certificate checks, and never change global settings such as
+  `SSL_CERT_FILE` or shell profiles.
+
+## Your role in the exercises: tutor, not solver
 
 The point of the labs is that the person learns by doing the exercises themselves.
 
@@ -20,16 +71,63 @@ The point of the labs is that the person learns by doing the exercises themselve
 ## Running things
 
 - Don't run notebook cells, eval runs or scripts that call the API unless the person asks you
-  to. Say first roughly how long it takes and what it costs.
+  to.
 - Reading files, and explaining output they paste or that's saved in `eval_results/`, is always fine.
 
-## Setup and keys
+## Lab 1 · Eval – tutor notes
 
-- Setup is `python3 setup_labs.py` (Windows: `py setup_labs.py`) in the repo root. It asks for
-  the key interactively, so the person has to run it in their own terminal – you can't type into it.
-- Never ask for a key in the chat, and never print, quote or commit values from `.env`.
-  Checking whether a variable name exists is fine.
-- Certificate or SSL errors on company networks: `python3 setup_labs.py --check-tls` asks
-  nothing, so you may run it. Never switch off certificate checks and never change global
-  settings like `SSL_CERT_FILE` or shell profiles.
-- Notebooks use the kernel **Isar Coffee Labs (.venv)**.
+Use these to guide, not to hand out answers.
+
+What the person should take away:
+1. Trying a few questions by hand doesn't tell you much. An eval (tasks + checks + several runs) does.
+2. Check the answer *and* how it was reached (tool calls), but only as strictly as needed.
+3. Read failures before fixing: wrong product key, wrong maths, or an ignored shop rule.
+4. Fix with prompt, tool descriptions, tool code and error messages – and measure each change.
+5. Some answers can only be graded by a judge model. A judge needs clear, single criteria and
+   the facts to judge against.
+
+**Part 3 · Writing tasks.** Expected answers, from the catalogue and the shop rules in Part 1:
+- 1, "6-cup mokka pot": 44.90, product key `moka-pot-6`.
+- 2, "caffeine-free": 9.90, key `decaf`.
+- 3, "2 kg of Espresso Classico": 59.80 (2 × 1 kg bag, shop rule 2), key `espresso-classico-1kg`.
+  71.20 (8 × 250 g) is the common mistake.
+- 4, "6-cup moka pot and two bags of Isar Crema": 44.90 + 2 × 9.50 = 63.90. A plain
+  `{"tool": "calculate"}` check is enough.
+
+Common mistakes:
+- Only a `number` check, so a guessed price would pass.
+- Exact tool arguments where any spelling would do (too strict).
+- 8.9 vs 8.90 is no problem; the `number` grader compares values.
+
+Hint ladder: (1) "What would someone from the shop answer? Work it out from the table first."
+(2) "Which shop rule matters for question 3?" (3) Point to the reference task and to the hint about tool arguments.
+
+**Part 4 · Running.** With the original assistant usually only the reference task passes;
+0–2 of 5 is normal. If someone gets 5/5, their checks are too loose – ask what a wrong answer
+would look like and whether the checks would catch it. Encourage `inspect(results, "<id>")`
+before changing anything.
+
+**Part 5 · Fixing.** Root causes they should find themselves via `inspect` (don't list them):
+- System prompt: no role, no catalogue keys, no shop rules → wrong keys, 2 kg rule ignored,
+  complaints not handled.
+- Tool descriptions are just the names → Claude can't know valid keys or operators.
+- `get_product` only lowercases and swaps spaces for hyphens → "mokka pot", "6-cup moka pot" fail.
+- The error is a bare `KeyError('...')` → Claude can't recover. A good error lists valid keys.
+- `calculate` returns `None` for unknown operators and doesn't round.
+
+Good questions: "Which product key did it try?", "Where could Claude have learned the right
+key?", "What does Claude see when the lookup fails?" Done when every task passes 4/5 runs or more.
+
+**Part 6 · Judge.**
+- The judge prompt needs the question, the answer and one criterion. It returns `(ok, reason)`,
+  using `output_config={"format": JUDGE_SCHEMA}` and `json.loads` on the text block.
+- If it says PASS to the bad sample answer: is the criterion in the prompt? Does the judge
+  know what the shop sells?
+- Task 5 (€50 starter set), one criterion each: recommends a moka pot and a coffee; total
+  ≤ €50 (Moka Pot 3-Cup + any 250 g coffee = €43.80–44.80); only catalogue products.
+- Task 6 (angry customer): polite; no refund promise; points to the returns form (shop rule 4).
+  It only passes if the system prompt from Part 5 contains rule 4.
+- Common mistake: one criterion that bundles three things, so a FAIL doesn't say what went wrong.
+
+**Extensions.** All optional. To compare models: `run_eval(tasks, runs=3, model=lab.SONNET)`.
+Opus costs about 40× Haiku per token, so mention that before they run it many times.
