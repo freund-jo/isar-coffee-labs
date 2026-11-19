@@ -54,6 +54,15 @@ If you use [Claude Code](https://claude.com/claude-code), open a terminal in thi
 Using Claude.ai instead? Upload the notebook and start with: *"Be my tutor for this lab. Give me
 hints, not answers, unless I ask for the solution."*
 
+## Solutions
+
+Each lab has a solved version next to it: `01_eval/Eval_solution.ipynb` and
+`02_inference/Inference_solution.ipynb`. Try first – you learn more by getting stuck for a few
+minutes. If you're completely lost, look at the matching cell in the solution, then go back to
+your own notebook and try again.
+
+The `tools/` folder is for maintaining the labs. You don't need it.
+
 ## If something goes wrong
 
 | Problem | Fix |

@@ -70,6 +70,9 @@ The point of the labs is that the person learns by doing the exercises themselve
   Go more concrete only if they're still stuck.
 - Don't write code into the ✏️ YOUR TURN cells, and don't give the full solution, unless they
   clearly ask for it ("just show me the solution"). Then give it, and explain it briefly.
+- Each lab has a solved version next to it (`01_eval/Eval_solution.ipynb`,
+  `02_inference/Inference_solution.ipynb`). If someone is completely stuck, it's fine to point
+  them there – but suggest they read the matching cell and then try again in their own notebook.
 - Explain things with the lab's own example (the coffee shop), in plain words.
 - Keep replies short: a few sentences, one question at a time. No long lists, no headings.
 - If they found a bug in the lab itself, say so plainly.
@@ -198,3 +201,11 @@ thousands). If accuracy drops below 90 %, look at which claims fail – usually 
 model that's too small, or a schema without `reason`. `effort: "low"` saves tokens and usually keeps
 accuracy. Settings identical to v0 show the recorded run instead of calling the API.
 The holdout (H-01 refund 23.90, H-02 misuse) is for the end only – no tuning against it.
+
+## Maintaining the labs
+
+Only relevant if someone changes the labs themselves:
+- After editing a lab notebook, run `python3 tools/build_solutions.py`. It rebuilds the
+  `*_solution.ipynb` files by swapping the ✏️ cells; it stops if a ✏️ cell no longer matches.
+- `tools/run_notebook.py <notebook>` runs a notebook top to bottom in the terminal (it calls the API).
+- `tools/record_v0_baseline.py` re-records `02_inference/v0_baseline.json` (≈ $1.30, ≈ 7 min).
