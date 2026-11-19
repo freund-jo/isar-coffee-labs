@@ -1,0 +1,16 @@
+# Your credentials. Never commit this file.
+.env
+
+# Python environment and caches
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Results written while you work through the labs
+eval_results/
+inference_results/
+
+# OS files
+.DS_Store
+Thumbs.db
