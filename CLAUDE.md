@@ -87,17 +87,18 @@ Use these to guide, not to hand out answers.
 What the person should take away:
 1. Trying a few questions by hand doesn't tell you much. An eval (tasks + checks + several runs) does.
 2. Check the answer *and* how it was reached (tool calls), but only as strictly as needed.
-3. Read failures before fixing: wrong product key, wrong maths, or an ignored shop rule.
+3. Read failures before fixing: wrong product name, wrong maths, or an ignored shop rule.
 4. Fix with prompt, tool descriptions, tool code and error messages – and measure each change.
-5. Some answers can only be graded by a judge model. A judge needs clear, single criteria and
-   the facts to judge against.
+5. Some answers can only be graded by a judge model. Writing its test cases well – clear,
+   single criteria, with the facts the judge needs – is the real skill.
 
-**Part 3 · Writing tasks.** Expected answers, from the catalogue and the shop rules in Part 1:
-- 1, "6-cup mokka pot": 44.90, product key `moka-pot-6`.
-- 2, "caffeine-free": 9.90, key `decaf`.
-- 3, "2 kg of Espresso Classico": 59.80 (2 × 1 kg bag, shop rule 2), key `espresso-classico-1kg`.
+**Part 3 · Writing tasks.** Expected answers, from the catalogue and the shop rules in Part 1.
+`get_product` takes product names as in the table (case doesn't matter):
+- 1, "mokka pot": 34.90, product "moka pot" (German "Mokka" vs. Italian "moka").
+- 2, "caffeine-free": 9.90, product "decaf".
+- 3, "2 kg of Espresso Classico": 59.80 (2 × "Espresso Classico 1 kg", shop rule 2).
   71.20 (8 × 250 g) is the common mistake.
-- 4, "6-cup moka pot and two bags of Isar Crema": 44.90 + 2 × 9.50 = 63.90. A plain
+- 4, "moka pot and two bags of Isar Crema": 34.90 + 2 × 9.50 = 53.90. A plain
   `{"tool": "calculate"}` check is enough.
 
 Common mistakes:
@@ -108,32 +109,34 @@ Common mistakes:
 Hint ladder: (1) "What would someone from the shop answer? Work it out from the table first."
 (2) "Which shop rule matters for question 3?" (3) Point to the reference task and to the hint about tool arguments.
 
-**Part 4 · Running.** With the original assistant usually only the reference task passes;
-0–2 of 5 is normal. If someone gets 5/5, their checks are too loose – ask what a wrong answer
-would look like and whether the checks would catch it. Encourage `inspect(results, "<id>")`
+**Part 4 · Running.** With the original assistant, the reference task and usually the mokka task
+pass; 1–2 of 5 is normal. The mokka task passes because Claude retries with "moka pot" after the
+first lookup fails – a good moment to ask "did it pass for the right reason? How many lookups did
+it need?". If someone gets 5/5, their checks are too loose. Encourage `inspect(results, "<id>")`
 before changing anything.
 
 **Part 5 · Fixing.** Root causes they should find themselves via `inspect` (don't list them):
-- System prompt: no role, no catalogue keys, no shop rules → wrong keys, 2 kg rule ignored,
-  complaints not handled.
-- Tool descriptions are just the names → Claude can't know valid keys or operators.
-- `get_product` only lowercases and swaps spaces for hyphens → "mokka pot", "6-cup moka pot" fail.
-- The error is a bare `KeyError('...')` → Claude can't recover. A good error lists valid keys.
+- System prompt: no role, no product names, no shop rules → wrong names, 2 kg rule ignored
+  (it often assumes the 8.90 is per kg), complaints not handled.
+- Tool descriptions are just the names → Claude can't know the products or operators.
+- `get_product` needs the exact name → "mokka pot", "caffeine-free coffee" fail.
+- The error is a bare `KeyError('...')` → Claude can't recover well. A good error lists the products.
 - `calculate` returns `None` for unknown operators and doesn't round.
 
-Good questions: "Which product key did it try?", "Where could Claude have learned the right
-key?", "What does Claude see when the lookup fails?" Done when every task passes 4/5 runs or more.
+Good questions: "Which product name did it try?", "Where could Claude have learned the right
+name?", "What does Claude see when the lookup fails?" Done when every task passes 4/5 runs or more.
 
-**Part 6 · Judge.**
-- The judge prompt needs the question, the answer and one criterion. It returns `(ok, reason)`,
-  using `output_config={"format": JUDGE_SCHEMA}` and `json.loads` on the text block.
-- If it says PASS to the bad sample answer: is the criterion in the prompt? Does the judge
-  know what the shop sells?
-- Task 5 (€50 starter set), one criterion each: recommends a moka pot and a coffee; total
-  ≤ €50 (Moka Pot 3-Cup + any 250 g coffee = €43.80–44.80); only catalogue products.
-- Task 6 (angry customer): polite; no refund promise; points to the returns form (shop rule 4).
-  It only passes if the system prompt from Part 5 contains rule 4.
-- Common mistake: one criterion that bundles three things, so a FAIL doesn't say what went wrong.
+**Part 6 · Test cases for the judge.** The judge is ready-made; the exercise is writing criteria.
+- Good criteria: one thing each, checkable from the answer, based on facts the judge has (the catalogue).
+- Task 5 (€50 starter set), e.g.: recommends a moka pot and at least one coffee; total ≤ €50
+  (Moka Pot + any 250 g coffee = €43.80–44.80); only catalogue products.
+- Task 6 (angry customer), e.g.: stays polite; doesn't promise a refund; points to the returns
+  form (shop rule 4). This only passes if the system prompt from Part 5 contains rule 4.
+- Common mistakes: one criterion bundling three things; vague words ("helpful", "describes").
+  In testing, the judge read "describes the products" as "explains each product" and failed a
+  plain list – a good example of why wording matters.
+- If a judge task fails, ask: is the answer wrong, or is the criterion unclear?
+- The schema puts `reason` before `verdict` so the judge explains before it decides.
 
 **Extensions.** All optional. To compare models: `run_eval(tasks, runs=3, model=lab.SONNET)`.
 Opus costs about 40× Haiku per token, so mention that before they run it many times.
