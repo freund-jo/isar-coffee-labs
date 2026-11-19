@@ -94,12 +94,17 @@ What the person should take away:
 
 **Part 3 · Writing tasks.** Expected answers, from the catalogue and the shop rules in Part 1.
 `get_product` takes product names as in the table (case doesn't matter):
-- 1, "mokka pot": 34.90, product "moka pot" (German "Mokka" vs. Italian "moka").
+- 1, "1kg bag of Classico": 29.90, product "espresso classico 1 kg". The flawed assistant has no
+  idea it works for a coffee shop – it even tries "Classico pasta sauce".
 - 2, "caffeine-free": 9.90, product "decaf".
-- 3, "2 kg of Espresso Classico": 59.80 (2 × "Espresso Classico 1 kg", shop rule 2).
-  71.20 (8 × 250 g) is the common mistake.
-- 4, "moka pot and two bags of Isar Crema": 34.90 + 2 × 9.50 = 53.90. A plain
-  `{"tool": "calculate"}` check is enough.
+- 3, "French press, including shipping": 27.90 + 4.90 = 32.80 (shop rule 2: shipping €4.90,
+  free from €40). 27.90 is the common mistake.
+- 4, "French press and two bags of Isar Crema": 27.90 + 2 × 9.50 = 46.90 – over €40, so no
+  shipping. A plain `{"tool": "calculate"}` check is enough.
+
+Each task fails for one reason that points to one fix in Part 5: product names the model can't
+guess (tool description / tool code), customer words vs. shop words (tool description / prompt),
+a shop rule it doesn't know (system prompt), several steps with maths (tool descriptions, calculator).
 
 Common mistakes:
 - Only a `number` check, so a guessed price would pass.
@@ -109,18 +114,17 @@ Common mistakes:
 Hint ladder: (1) "What would someone from the shop answer? Work it out from the table first."
 (2) "Which shop rule matters for question 3?" (3) Point to the reference task and to the hint about tool arguments.
 
-**Part 4 · Running.** With the original assistant, the reference task and usually the mokka task
-pass; 1–2 of 5 is normal. The mokka task passes because Claude retries with "moka pot" after the
-first lookup fails – a good moment to ask "did it pass for the right reason? How many lookups did
-it need?". If someone gets 5/5, their checks are too loose. Encourage `inspect(results, "<id>")`
-before changing anything.
+**Part 4 · Running.** With the original assistant usually only the reference task passes
+(the total task occasionally passes by luck). If someone gets 5/5, their checks are too loose –
+ask what a wrong answer would look like and whether the checks would catch it.
+Encourage `inspect(results, "<id>")` before changing anything.
 
 **Part 5 · Fixing.** Root causes they should find themselves via `inspect` (don't list them):
-- System prompt: no role, no product names, no shop rules → wrong names, 2 kg rule ignored
-  (it often assumes the 8.90 is per kg), complaints not handled.
+- System prompt: no role, no product names, no shop rules → it doesn't know it's a coffee shop,
+  no shipping, complaints not handled, prices sometimes in $.
 - Tool descriptions are just the names → Claude can't know the products or operators.
-- `get_product` needs the exact name → "mokka pot", "caffeine-free coffee" fail.
-- The error is a bare `KeyError('...')` → Claude can't recover well. A good error lists the products.
+- `get_product` needs the exact name → "Classico 1kg", "caffeine-free coffee" fail.
+- The error is a bare `KeyError('...')` → Claude can't recover. A good error lists the products.
 - `calculate` returns `None` for unknown operators and doesn't round.
 
 Good questions: "Which product name did it try?", "Where could Claude have learned the right
@@ -128,8 +132,9 @@ name?", "What does Claude see when the lookup fails?" Done when every task passe
 
 **Part 6 · Test cases for the judge.** The judge is ready-made; the exercise is writing criteria.
 - Good criteria: one thing each, checkable from the answer, based on facts the judge has (the catalogue).
-- Task 5 (€50 starter set), e.g.: recommends a moka pot and at least one coffee; total ≤ €50
-  (Moka Pot + any 250 g coffee = €43.80–44.80); only catalogue products.
+- Task 5 (€50 starter set), e.g.: recommends a coffee maker and at least one coffee; total ≤ €50
+  including shipping (French Press + any 250 g coffee = €36.80–37.80 + €4.90 shipping = €41.70–42.70;
+  Moka Pot + one = €43.80–44.80, free shipping); only catalogue products.
 - Task 6 (angry customer), e.g.: stays polite; doesn't promise a refund; points to the returns
   form (shop rule 4). This only passes if the system prompt from Part 5 contains rule 4.
 - Common mistakes: one criterion bundling three things; vague words ("helpful", "describes").
