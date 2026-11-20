@@ -1,13 +1,26 @@
-"""Shared helper for the Isar Coffee labs. You don't need to read this file.
+"""Connection helper for the Isar Coffee labs.
 
-Every notebook starts with:
+You don't need to read or change this file to do the labs. It does the plumbing, so the notebooks
+can stay about evals and inference.
+
+How the notebooks use it – the first cell of each lab runs:
 
     from labs_common import connect
-    lab = connect()
+    lab = connect()                      # read the key, test it, show a green or red box
+    client = lab.make_client()           # the client the lab uses for its API calls
 
-connect() reads your API key from the .env file, makes one tiny test call and shows a
-green box if everything works. It works with an Anthropic API key, or with a key from a
-company AI gateway (then .env also holds the gateway address in ANTHROPIC_BASE_URL).
+What `lab` gives you:
+
+    lab.HAIKU, lab.SONNET, lab.OPUS      the model names to pass as model=...
+    lab.make_client(...)                 a client for the lab's calls (longer timeout)
+    lab.cost(model, usage)               what one API call cost, in US$
+
+Where the settings come from: the file .env in the repo folder. setup_labs.py writes it for you.
+
+    ANTHROPIC_API_KEY     your key (an Anthropic key, or a key from a company AI gateway)
+    ANTHROPIC_BASE_URL    only for a gateway: its address
+    LABS_MODEL_PREFIX     only for a gateway, optional: text in front of the model names
+    LABS_TLS              "system" if your network needs the computer's own certificate store
 """
 
 import os
@@ -17,6 +30,7 @@ from dataclasses import dataclass
 REPO_ROOT = pathlib.Path(__file__).resolve().parent
 ENV_FILE = REPO_ROOT / ".env"
 
+# The three models used in the labs, from smallest and cheapest to largest.
 MODELS = {
     "haiku": "claude-haiku-5-5",
     "sonnet": "claude-sonnet-5-5",
@@ -24,7 +38,8 @@ MODELS = {
 }
 
 # List prices in US$ per million tokens (Anthropic API, November 2026).
-# Cache writes cost 1.25x the input price.
+# "cache_read" is the price for tokens read back from the prompt cache.
+# Writing tokens into the cache costs the input price × CACHE_WRITE_FACTOR.
 PRICES = {
     "haiku": {"input": 0.10, "output": 0.50, "cache_read": 0.010},
     "sonnet": {"input": 2.00, "output": 10.00, "cache_read": 0.10},
@@ -35,7 +50,10 @@ CACHE_WRITE_FACTOR = 1.25
 SETUP_HINT = "In a terminal in the repo folder, run:  python3 setup_labs.py   (Windows: py setup_labs.py)"
 
 
+# ── Messages for the person in front of the screen ──────────────────────────
+
 def _show(ok, title, lines):
+    """Show a result: a green or red box in a notebook, plain text with ✓ / ✗ in a terminal."""
     try:
         from IPython import get_ipython
         in_notebook = get_ipython().__class__.__name__ == "ZMQInteractiveShell"
@@ -55,6 +73,7 @@ def _show(ok, title, lines):
 
 
 def _why(error):
+    """Turn a connection error into plain words: what went wrong and how to fix it."""
     text = f"{type(error).__name__}: {error}"
     if "CERTIFICATE" in text.upper() or "SSL" in text.upper():
         return ["Your network blocks the connection with its own certificates.",
@@ -75,14 +94,21 @@ def _why(error):
     return [text[:300]]
 
 
+# ── Creating the client ──────────────────────────────────────────────────────
+
 def _new_client(timeout):
+    """An Anthropic client with the key from .env – and the gateway address, if there is one."""
     import anthropic
     base_url = os.environ.get("ANTHROPIC_BASE_URL", "").strip() or None
     return anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"].strip(), base_url=base_url, timeout=timeout)
 
 
 def _switch_off_haiku_thinking(client):
-    """Adds thinking={"type": "disabled"} to every Haiku request that doesn't set thinking itself."""
+    """Make every Haiku call on this client run without thinking (unless the call sets thinking itself).
+
+    Used in Lab 2, where Haiku is meant to be the fastest and cheapest option. Calls to Sonnet and
+    Opus are passed through unchanged.
+    """
     for name in ("create", "stream"):
         original = getattr(client.messages, name)
 
@@ -95,7 +121,12 @@ def _switch_off_haiku_thinking(client):
 
 
 def _gateway_prefix(client):
-    """A gateway may name the models differently, e.g. 'bedrock.anthropic.claude-haiku-5-5'."""
+    """Find out how a company gateway names the models.
+
+    Some gateways put text in front of the model names, e.g. 'bedrock.anthropic.claude-haiku-5-5'.
+    This asks the gateway for its model list and returns that text ('' if the names are unchanged).
+    LABS_MODEL_PREFIX in .env overrides the search.
+    """
     if os.environ.get("LABS_MODEL_PREFIX"):
         return os.environ["LABS_MODEL_PREFIX"].strip()
     ids = [m.id for m in client.models.list(limit=1000)]
@@ -108,20 +139,23 @@ def _gateway_prefix(client):
     return match[: -len(MODELS["haiku"])]
 
 
+# ── What connect() gives you ─────────────────────────────────────────────────
+
 @dataclass
 class Lab:
-    """What connect() gives you: a client and the model names."""
-    client: object
-    HAIKU: str
+    """The result of connect(): the model names to use, plus two helpers."""
+    client: object            # the client used for the connection test
+    HAIKU: str                # full model names – pass them as model=lab.HAIKU etc.
     SONNET: str
     OPUS: str
-    via_gateway: bool = False
+    via_gateway: bool = False  # True if the key goes through a company gateway (no Batch API there)
 
     def make_client(self, timeout=600.0, haiku_thinks=True):
-        """A client with a longer timeout, for long-running cells.
+        """The client a lab uses for its API calls.
 
-        haiku_thinks=False: every call to Haiku runs with thinking switched off – the fastest and
-        cheapest setting. Sonnet and Opus are not affected.
+        timeout:       how long one call may take, in seconds (long answers can take a while).
+        haiku_thinks:  False = every call to Haiku runs without thinking – the fastest and cheapest
+                       setting. Lab 2 uses this. Sonnet and Opus are not affected.
         """
         client = _new_client(timeout)
         if not haiku_thinks:
@@ -129,7 +163,11 @@ class Lab:
         return client
 
     def cost(self, model, usage):
-        """Cost of one API call in US$, including cache writes and reads."""
+        """What one API call cost in US$: input, output, cache writes and cache reads.
+
+        model:  the model name used for the call (e.g. lab.SONNET)
+        usage:  response.usage from that call
+        """
         tier = next(name for name in MODELS if name in model)
         p = PRICES[tier]
         write = getattr(usage, "cache_creation_input_tokens", 0) or 0
@@ -139,9 +177,15 @@ class Lab:
 
 
 def connect():
-    """Read the key from .env, make one tiny test call and show the result."""
+    """Check that everything is ready and return a Lab.
+
+    1. Are the packages installed? If not: say how to run the setup.
+    2. Read the key (and gateway address, if any) from .env.
+    3. Make one tiny test call to Haiku.
+    4. Show a green box – or a red one that says what to fix – and stop the cell if it failed.
+    """
     try:
-        import anthropic
+        import anthropic  # noqa: F401  (only checks that the package is installed)
         from dotenv import load_dotenv
     except ImportError:
         _show(False, "Setup not done yet",
@@ -151,7 +195,7 @@ def connect():
     load_dotenv(ENV_FILE, override=True)
     if os.environ.get("LABS_TLS", "").strip() == "system":
         import truststore
-        truststore.inject_into_ssl()
+        truststore.inject_into_ssl()      # use the computer's certificate store (company networks)
 
     key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not key:
@@ -174,4 +218,5 @@ def connect():
 
 
 if __name__ == "__main__":
+    # `python labs_common.py` runs only the connection test – handy to check a key from the terminal.
     connect()

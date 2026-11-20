@@ -64,6 +64,23 @@ Each lab has a solved version next to it: `01_eval/Eval_solution.ipynb` and
 minutes. If you're completely lost, look at the matching cell in the solution, then go back to
 your own notebook and try again.
 
+## What's in this repo
+
+| File | What it is |
+|---|---|
+| `01_eval/Eval.ipynb` | Lab 1 – the notebook you work in |
+| `01_eval/Eval_solution.ipynb` | Lab 1, solved |
+| `02_inference/Inference.ipynb` | Lab 2 – the notebook you work in |
+| `02_inference/Inference_solution.ipynb` | Lab 2, solved |
+| `02_inference/handbook.md` | The returns handbook the AI decides claims with in Lab 2 |
+| `02_inference/v0_baseline.json` | A recorded run of the slow Lab 2 version, so you don't have to pay for it |
+| `setup_labs.py` | The one-time setup (step 3 above) |
+| `labs_common.py` | Connects the notebooks to Claude. You don't need to open it |
+| `CLAUDE.md` | Instructions for Claude, so it can help with the setup and act as your tutor |
+
+The setup also creates `.venv` (the Python environment) and `.env` (your key). Both stay on your
+computer – never share or upload `.env`.
+
 ## If something goes wrong
 
 | Problem | Fix |

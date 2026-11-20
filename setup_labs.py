@@ -5,11 +5,22 @@ Open a terminal in this folder and run:
     python3 setup_labs.py      (Mac)
     py setup_labs.py           (Windows)
 
-It installs everything into a local .venv folder, asks for your API key (an Anthropic key, or a
-key from a company AI gateway plus its address), saves it in .env and checks that it works.
-Running it again is safe.
+What it does, step by step:
 
-    --check-tls   only fix certificate problems on company networks (asks nothing)
+    1. Warns if the folder is inside OneDrive, Dropbox or iCloud (syncing breaks the setup).
+    2. Checks that Python is 3.10 or newer.
+    3. Creates a private Python environment in the folder .venv and installs the packages the labs
+       need. It also registers the notebook kernel "Isar Coffee Labs (.venv)".
+    4. Asks for your API key – an Anthropic key, or a key from a company AI gateway plus its
+       address – saves it in .env and tests it. On company networks that replace certificates it
+       switches to the computer's own certificate store by itself.
+
+Running it again is safe: it keeps a working key and only asks again if the key doesn't work.
+
+Option:
+    --check-tls   only test the connection and fix certificate problems (asks nothing)
+
+Nothing outside this folder is changed, except the registered notebook kernel.
 """
 
 import getpass
@@ -27,10 +38,12 @@ KERNEL = ("isar-coffee-labs", "Isar Coffee Labs (.venv)")
 
 
 def say(text=""):
+    """Print a line straight away (so the output appears even while something slow runs)."""
     print(text, flush=True)
 
 
 def read_env():
+    """The settings saved in .env, as a dictionary (empty if there is no .env yet)."""
     values = {}
     if ENV_FILE.exists():
         for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
@@ -41,13 +54,18 @@ def read_env():
 
 
 def write_env(values):
+    """Save the settings to .env. Empty values are left out."""
     lines = ["# Your API key. Keep this file private – never share or commit it."]
     lines += [f'{k}="{v}"' for k, v in values.items() if v]
     ENV_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def test_key():
-    """Returns (ok, message) using the connect() check from labs_common."""
+    """Run the connection test from labs_common inside .venv.
+
+    Returns (ok, lines): ok is True if the test call worked; lines is the message it printed,
+    without the Python error details.
+    """
     result = subprocess.run([str(PYTHON), "-c", "import labs_common; labs_common.connect()"],
                             cwd=ROOT, capture_output=True, text=True)
     lines = [l.strip() for l in (result.stdout + result.stderr).splitlines()
@@ -57,12 +75,19 @@ def test_key():
 
 
 def reason(lines):
-    """The one line that says what went wrong, without the fix (we are already in the setup)."""
+    """From the test message, the one line that says what went wrong.
+
+    The fix line ("run setup_labs.py") is left out – we are already in the setup.
+    """
     return lines[1] if len(lines) > 1 else " ".join(lines)
 
 
 def fix_certificates(values):
-    """Company networks often replace certificates. Then the system certificate store helps."""
+    """Try again with the computer's own certificate store (LABS_TLS=system in .env).
+
+    Company networks often check HTTPS traffic with their own certificates, which Python doesn't
+    know. The computer's certificate store does. If that doesn't help either, the setting is removed again.
+    """
     values["LABS_TLS"] = "system"
     write_env(values)
     ok, lines = test_key()
@@ -73,6 +98,7 @@ def fix_certificates(values):
 
 
 def main():
+    """The four setup steps (see the top of this file)."""
     say("Isar Coffee Labs – setup\n")
 
     if "--check-tls" in sys.argv:
@@ -114,7 +140,7 @@ def main():
                     "--display-name", KERNEL[1]], capture_output=True, check=True)
     say("✓ Packages installed")
 
-    # 4. API key
+    # 4. API key – keep a saved key if it works, otherwise ask for one
     values = read_env()
     if values.get("ANTHROPIC_API_KEY"):
         ok, lines = test_key()
