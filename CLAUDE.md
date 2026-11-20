@@ -227,8 +227,11 @@ multiply; hatched bars are runs below 90 % accuracy.
 
 ## Maintaining the labs
 
-Only relevant if someone changes the labs themselves:
-- After editing a lab notebook, run `python3 tools/build_solutions.py`. It rebuilds the
+Only relevant for the instructor. If there is an `instructor/` folder in the repo (it exists only on the
+instructor's computer and is never pushed), it holds the slides and these scripts:
+- After editing a lab notebook, run `python3 instructor/tools/build_solutions.py`. It rebuilds the
   `*_solution.ipynb` files by swapping the ✏️ cells; it stops if a ✏️ cell no longer matches.
-- `tools/run_notebook.py <notebook>` runs a notebook top to bottom in the terminal (it calls the API).
-- `tools/record_v0_baseline.py` re-records `02_inference/v0_baseline.json` (≈ $1.30, ≈ 7 min).
+- `instructor/tools/run_notebook.py <notebook>` runs a notebook top to bottom in the terminal (it calls the API).
+- `instructor/tools/record_v0_baseline.py` re-records `02_inference/v0_baseline.json` (≈ $2, ≈ 9 min).
+
+If the folder isn't there, the person is a participant – don't mention it.

@@ -14,3 +14,6 @@ inference_results/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Instructor material – stays on this computer, never pushed
+instructor/

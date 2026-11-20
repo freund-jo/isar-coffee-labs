@@ -64,8 +64,6 @@ Each lab has a solved version next to it: `01_eval/Eval_solution.ipynb` and
 minutes. If you're completely lost, look at the matching cell in the solution, then go back to
 your own notebook and try again.
 
-The `tools/` folder is for maintaining the labs. You don't need it.
-
 ## If something goes wrong
 
 | Problem | Fix |
